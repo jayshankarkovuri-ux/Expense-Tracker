@@ -69,10 +69,20 @@ while True:
 
         if not found:
             print("Expense Not Found!")
-
-
     elif choice == "4":
-        print("Delete Expense Selected")
+        delete_name = input("Enter Expense Name to Delete: ")
+
+        found = False
+
+        for expense in expenses:
+            if expense["title"].lower() == delete_name.lower():
+                expenses.remove(expense)
+                print("\nExpense Deleted Successfully!")
+                found = True
+                break
+
+        if not found:
+            print("Expense Not Found!")
 
     elif choice == "5":
         print("Save Expenses Selected")
