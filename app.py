@@ -45,12 +45,31 @@ while True:
 
             for expense in expenses:
                 print("---------------------")
+                print("Title :", expense["Title"])
+                print("Category :", expense["Category"])
+                print("Amount :", expense["Amount"])
+
+    elif choice == "3":
+
+        search = input("Enter Expense Name: ")
+
+        found = False
+
+        for expense in expenses:
+
+            if expense["title"].lower() == search.lower():
+
+                print("\nExpense Found!")
+                print("------------------------")
                 print("Title :", expense["title"])
                 print("Category :", expense["category"])
                 print("Amount :", expense["amount"])
+                found = True
+                break
 
-    elif choice == "3":
-        print("Search Expense Selected")
+        if not found:
+            print("Expense Not Found!")
+
 
     elif choice == "4":
         print("Delete Expense Selected")
