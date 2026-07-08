@@ -1,3 +1,4 @@
+import json
 def display_menu():
     print("=" * 40)
     print("      EXPENSE TRACKER")
@@ -85,7 +86,10 @@ while True:
             print("Expense Not Found!")
 
     elif choice == "5":
-        print("Save Expenses Selected")
+        with open("expenses.json", "w") as file:
+            json.dump(expenses, file, indent=4)
+
+        print("\nExpenses Saved Successfully!")
 
     elif choice == "6":
         print("Thank you for using Expense Tracker!")
