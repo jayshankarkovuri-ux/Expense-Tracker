@@ -1,1 +1,22 @@
-[]
+[
+    {
+        "title": "gym",
+        "category": "persoal",
+        "amount": 5000.0
+    },
+    {
+        "title": "food",
+        "category": "ealth",
+        "amount": 6000.0
+    },
+    {
+        "title": "education",
+        "category": "future",
+        "amount": 100000.0
+    },
+    {
+        "title": "gym",
+        "category": "health",
+        "amount": 50000.0
+    }
+]
