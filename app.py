@@ -11,7 +11,7 @@ except FileNotFoundError:
 
 def display_menu():
     print("\n" + "=" * 40)
-    print("      EXPENSE TRACKER")
+    print("         EXPENSE TRACKER")
     print("=" * 40)
     print("1. Add Expense")
     print("2. View Expenses")
@@ -19,7 +19,8 @@ def display_menu():
     print("4. Delete Expense")
     print("5. Save Expenses")
     print("6. Summary Report")
-    print("7. Exit")
+    print("7. Category Analysis")
+    print("8. Exit")
     print("=" * 40)
 
 
@@ -37,26 +38,52 @@ def display_summary():
 
     print("\nSUMMARY REPORT")
     print("-" * 30)
-    print(f"Total Expenses: {total_expenses}")
-    print(f"Total Amount: ₹{total_amount}")
+    print(f"Total Expenses : {total_expenses}")
+    print(f"Total Amount   : ₹{total_amount}")
     print(f"Average Expense: ₹{average_expense:.2f}")
     print(f"Highest Expense: ₹{highest_expense}")
 
 
+def category_analysis():
+
+    if len(expenses) == 0:
+        print("No expenses available.")
+        return
+
+    category_totals = {}
+
+    for expense in expenses:
+        category = expense["category"].lower()
+        amount = expense["amount"]
+
+        if category in category_totals:
+            category_totals[category] += amount
+        else:
+            category_totals[category] = amount
+
+    print("\nCATEGORY ANALYSIS")
+    print("-" * 30)
+
+    for category, total in category_totals.items():
+        print(f"{category.title()}: ₹{total}")
+
+
 while True:
+
     display_menu()
 
     choice = input("Enter your choice: ")
 
     # Add Expense
     if choice == "1":
+
         title = input("Enter Expense Title: ")
         category = input("Enter Category: ")
 
         try:
             amount = float(input("Enter Amount: "))
         except ValueError:
-            print("Invalid amount!")
+            print("Invalid Amount!")
             continue
 
         expense = {
@@ -66,17 +93,21 @@ while True:
         }
 
         expenses.append(expense)
+
         print("Expense Added Successfully!")
 
     # View Expenses
     elif choice == "2":
+
         if len(expenses) == 0:
             print("No expenses found.")
+
         else:
             print("\nEXPENSE LIST")
             print("-" * 40)
 
             for expense in expenses:
+
                 print(f"Title    : {expense['title']}")
                 print(f"Category : {expense['category']}")
                 print(f"Amount   : ₹{expense['amount']}")
@@ -84,16 +115,20 @@ while True:
 
     # Search Expense
     elif choice == "3":
+
         search = input("Enter Expense Name: ")
 
         found = False
 
         for expense in expenses:
+
             if expense["title"].lower() == search.lower():
+
                 print("\nExpense Found!")
                 print(f"Title    : {expense['title']}")
                 print(f"Category : {expense['category']}")
                 print(f"Amount   : ₹{expense['amount']}")
+
                 found = True
                 break
 
@@ -102,14 +137,19 @@ while True:
 
     # Delete Expense
     elif choice == "4":
+
         delete_name = input("Enter Expense Name to Delete: ")
 
         found = False
 
         for expense in expenses:
+
             if expense["title"].lower() == delete_name.lower():
+
                 expenses.remove(expense)
+
                 print("Expense Deleted Successfully!")
+
                 found = True
                 break
 
@@ -118,6 +158,7 @@ while True:
 
     # Save Expenses
     elif choice == "5":
+
         with open("expenses.json", "w") as file:
             json.dump(expenses, file, indent=4)
 
@@ -125,13 +166,19 @@ while True:
 
     # Summary Report
     elif choice == "6":
+
         display_summary()
 
-    # Exit
+    # Category Analysis
     elif choice == "7":
+
+        category_analysis()
+
+    # Exit
+    elif choice == "8":
+
         print("Exiting Program...")
         break
 
     else:
-        print("Invalid Choice! Please try again.")
-     
+        print("Invalid Choice! Please Try Again.")
