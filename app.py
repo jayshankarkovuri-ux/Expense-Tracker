@@ -21,7 +21,8 @@ def display_menu():
     print("6. Summary Report")
     print("7. Category Analysis")
     print("8. Monthly Report")
-    print("9. Exit")
+    print("9. Sort Expenses")
+    print("10. Exit")
     print("=" * 40)
 
 
@@ -99,6 +100,46 @@ def monthly_report():
         print(f"Total Monthly Expense: ₹{total}")
     else:
         print("No expenses found for this month.")
+
+
+def sort_expenses():
+
+    if len(expenses) == 0:
+        print("No expenses available.")
+        return
+
+    print("\n1. Sort by Amount (Low to High)")
+    print("2. Sort by Amount (High to Low)")
+
+    option = input("Choose option: ")
+
+    if option == "1":
+        sorted_expenses = sorted(
+            expenses,
+            key=lambda expense: expense["amount"]
+        )
+
+    elif option == "2":
+        sorted_expenses = sorted(
+            expenses,
+            key=lambda expense: expense["amount"],
+            reverse=True
+        )
+
+    else:
+        print("Invalid Choice!")
+        return
+
+    print("\nSORTED EXPENSES")
+    print("-" * 40)
+
+    for expense in sorted_expenses:
+
+        print(f"Title    : {expense['title']}")
+        print(f"Category : {expense['category']}")
+        print(f"Date     : {expense.get('date', 'N/A')}")
+        print(f"Amount   : ₹{expense['amount']}")
+        print("-" * 40)
 
 
 while True:
@@ -216,8 +257,13 @@ while True:
 
         monthly_report()
 
-    # Exit
+    # Sort Expenses
     elif choice == "9":
+
+        sort_expenses()
+
+    # Exit
+    elif choice == "10":
 
         print("Exiting Program...")
         break
