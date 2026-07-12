@@ -1,18 +1,40 @@
 import json
+import csv
+import os
 
-# Load expenses from JSON file
-try:
-    with open("expenses.json", "r") as file:
-        expenses = json.load(file)
-    print("Expenses Loaded Successfully!")
-except FileNotFoundError:
-    expenses = []
+DATA_DIR = "data"
+REPORTS_DIR = "reports"
+JSON_FILE = os.path.join(DATA_DIR, "expenses.json")
+CSV_FILE = os.path.join(REPORTS_DIR, "expenses.csv")
+
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(REPORTS_DIR, exist_ok=True)
+
+
+def load_expenses():
+    try:
+        with open(JSON_FILE, "r") as file:
+            data = json.load(file)
+            if isinstance(data, list):
+                print("Expenses Loaded Successfully!")
+                return data
+            return []
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        return []
+
+
+def save_expenses():
+    with open(JSON_FILE, "w") as file:
+        json.dump(expenses, file, indent=4)
+    print("Expenses Saved Successfully!")
 
 
 def display_menu():
-    print("\n" + "=" * 40)
-    print("         EXPENSE TRACKER")
-    print("=" * 40)
+    print("\n" + "=" * 45)
+    print("              EXPENSE TRACKER")
+    print("=" * 45)
     print("1. Add Expense")
     print("2. View Expenses")
     print("3. Search Expense")
@@ -20,15 +42,31 @@ def display_menu():
     print("5. Save Expenses")
     print("6. Summary Report")
     print("7. Category Analysis")
-    print("8. Monthly Report")
-    print("9. Sort Expenses")
-    print("10. Exit")
-    print("=" * 40)
+    print("8. Sort Expenses by Amount (High to Low)")
+    print("9. Sort Expenses by Amount (Low to High)")
+    print("10. Sort Expenses by Title")
+    print("11. Highest and Lowest Expense")
+    print("12. Export Expenses to CSV")
+    print("13. Exit")
+    print("=" * 45)
 
 
-def display_summary():
+def display_expenses(expense_list):
+    if not expense_list:
+        print("No expenses found.")
+        return
+
+    print("\nEXPENSE LIST")
+    print("-" * 45)
+    for expense in expense_list:
+        print(f"Title    : {expense['title']}")
+        print(f"Category : {expense['category']}")
+        print(f"Amount   : ₹{expense['amount']}")
+        print("-" * 45)
+
+
+def summary_report():
     total_expenses = len(expenses)
-
     total_amount = sum(expense["amount"] for expense in expenses)
 
     if total_expenses > 0:
@@ -39,234 +77,165 @@ def display_summary():
         highest_expense = 0
 
     print("\nSUMMARY REPORT")
-    print("-" * 30)
-    print(f"Total Expenses : {total_expenses}")
-    print(f"Total Amount   : ₹{total_amount}")
-    print(f"Average Expense: ₹{average_expense:.2f}")
-    print(f"Highest Expense: ₹{highest_expense}")
+    print("-" * 45)
+    print(f"Total Expenses  : {total_expenses}")
+    print(f"Total Amount    : ₹{total_amount}")
+    print(f"Average Expense : ₹{average_expense:.2f}")
+    print(f"Highest Expense : ₹{highest_expense}")
 
 
 def category_analysis():
-
-    if len(expenses) == 0:
-        print("No expenses available.")
+    if not expenses:
+        print("No expenses found.")
         return
 
     category_totals = {}
-
     for expense in expenses:
-        category = expense["category"].lower()
+        category = expense["category"].strip().lower()
         amount = expense["amount"]
-
-        if category in category_totals:
-            category_totals[category] += amount
-        else:
-            category_totals[category] = amount
+        category_totals[category] = category_totals.get(category, 0) + amount
 
     print("\nCATEGORY ANALYSIS")
-    print("-" * 30)
-
+    print("-" * 45)
     for category, total in category_totals.items():
-        print(f"{category.title()}: ₹{total}")
+        print(f"{category.title():<20} ₹{total}")
+    print("-" * 45)
+    print(f"Total Amount: ₹{sum(category_totals.values())}")
 
 
-def monthly_report():
-
-    month = input("Enter Month (YYYY-MM): ")
-
-    total = 0
-
-    print("\nMONTHLY REPORT")
-    print("-" * 30)
-
-    found = False
-
-    for expense in expenses:
-
-        if expense.get("date", "").startswith(month):
-
-            print(
-                f"{expense['title']} | "
-                f"{expense['category']} | "
-                f"{expense['date']} | "
-                f"₹{expense['amount']}"
-            )
-
-            total += expense["amount"]
-            found = True
-
-    if found:
-        print("-" * 30)
-        print(f"Total Monthly Expense: ₹{total}")
-    else:
-        print("No expenses found for this month.")
-
-
-def sort_expenses():
-
-    if len(expenses) == 0:
-        print("No expenses available.")
+def highest_and_lowest_expense():
+    if not expenses:
+        print("No expenses found.")
         return
 
-    print("\n1. Sort by Amount (Low to High)")
-    print("2. Sort by Amount (High to Low)")
+    highest = max(expenses, key=lambda x: x["amount"])
+    lowest = min(expenses, key=lambda x: x["amount"])
 
-    option = input("Choose option: ")
+    print("\nHIGHEST AND LOWEST EXPENSE")
+    print("-" * 45)
+    print("Highest Expense:")
+    print(f"Title    : {highest['title']}")
+    print(f"Category : {highest['category']}")
+    print(f"Amount   : ₹{highest['amount']}")
+    print("-" * 45)
+    print("Lowest Expense:")
+    print(f"Title    : {lowest['title']}")
+    print(f"Category : {lowest['category']}")
+    print(f"Amount   : ₹{lowest['amount']}")
+    print("-" * 45)
 
-    if option == "1":
-        sorted_expenses = sorted(
-            expenses,
-            key=lambda expense: expense["amount"]
-        )
 
-    elif option == "2":
-        sorted_expenses = sorted(
-            expenses,
-            key=lambda expense: expense["amount"],
-            reverse=True
-        )
-
-    else:
-        print("Invalid Choice!")
+def export_to_csv():
+    if not expenses:
+        print("No expenses to export.")
         return
 
-    print("\nSORTED EXPENSES")
-    print("-" * 40)
+    with open(CSV_FILE, "w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=["title", "category", "amount"])
+        writer.writeheader()
+        writer.writerows(expenses)
 
-    for expense in sorted_expenses:
+    print(f"Expenses exported successfully to {CSV_FILE}")
 
-        print(f"Title    : {expense['title']}")
-        print(f"Category : {expense['category']}")
-        print(f"Date     : {expense.get('date', 'N/A')}")
-        print(f"Amount   : ₹{expense['amount']}")
-        print("-" * 40)
 
+expenses = load_expenses()
 
 while True:
-
     display_menu()
+    choice = input("Enter your choice: ").strip()
 
-    choice = input("Enter your choice: ")
-
-    # Add Expense
     if choice == "1":
-
-        title = input("Enter Expense Title: ")
-        category = input("Enter Category: ")
-        date = input("Enter Date (YYYY-MM-DD): ")
+        title = input("Enter Expense Title: ").strip()
+        category = input("Enter Category: ").strip()
 
         try:
             amount = float(input("Enter Amount: "))
         except ValueError:
-            print("Invalid Amount!")
+            print("Invalid amount. Please enter a number.")
             continue
 
         expense = {
             "title": title,
             "category": category,
-            "date": date,
             "amount": amount
         }
 
         expenses.append(expense)
-
         print("Expense Added Successfully!")
 
-    # View Expenses
     elif choice == "2":
+        display_expenses(expenses)
 
-        if len(expenses) == 0:
-            print("No expenses found.")
-
-        else:
-            print("\nEXPENSE LIST")
-            print("-" * 40)
-
-            for expense in expenses:
-
-                print(f"Title    : {expense['title']}")
-                print(f"Category : {expense['category']}")
-                print(f"Date     : {expense.get('date', 'N/A')}")
-                print(f"Amount   : ₹{expense['amount']}")
-                print("-" * 40)
-
-    # Search Expense
     elif choice == "3":
-
-        search = input("Enter Expense Name: ")
-
+        search = input("Enter Expense Name: ").strip()
         found = False
 
         for expense in expenses:
-
             if expense["title"].lower() == search.lower():
-
                 print("\nExpense Found!")
+                print("-" * 45)
                 print(f"Title    : {expense['title']}")
                 print(f"Category : {expense['category']}")
-                print(f"Date     : {expense.get('date', 'N/A')}")
                 print(f"Amount   : ₹{expense['amount']}")
-
                 found = True
                 break
 
         if not found:
             print("Expense Not Found!")
 
-    # Delete Expense
     elif choice == "4":
-
-        delete_name = input("Enter Expense Name to Delete: ")
-
+        delete_name = input("Enter Expense Name to Delete: ").strip()
         found = False
 
         for expense in expenses:
-
             if expense["title"].lower() == delete_name.lower():
-
                 expenses.remove(expense)
-
                 print("Expense Deleted Successfully!")
-
                 found = True
                 break
 
         if not found:
             print("Expense Not Found!")
 
-    # Save Expenses
     elif choice == "5":
+        save_expenses()
 
-        with open("expenses.json", "w") as file:
-            json.dump(expenses, file, indent=4)
-
-        print("Expenses Saved Successfully!")
-
-    # Summary Report
     elif choice == "6":
+        summary_report()
 
-        display_summary()
-
-    # Category Analysis
     elif choice == "7":
-
         category_analysis()
 
-    # Monthly Report
     elif choice == "8":
+        if not expenses:
+            print("No expenses found.")
+        else:
+            sorted_expenses = sorted(expenses, key=lambda x: x["amount"], reverse=True)
+            display_expenses(sorted_expenses)
 
-        monthly_report()
-
-    # Sort Expenses
     elif choice == "9":
+        if not expenses:
+            print("No expenses found.")
+        else:
+            sorted_expenses = sorted(expenses, key=lambda x: x["amount"])
+            display_expenses(sorted_expenses)
 
-        sort_expenses()
-
-    # Exit
     elif choice == "10":
+        if not expenses:
+            print("No expenses found.")
+        else:
+            sorted_expenses = sorted(expenses, key=lambda x: x["title"].lower())
+            display_expenses(sorted_expenses)
 
+    elif choice == "11":
+        highest_and_lowest_expense()
+
+    elif choice == "12":
+        export_to_csv()
+
+    elif choice == "13":
         print("Exiting Program...")
         break
 
     else:
-        print("Invalid Choice! Please Try Again.")
+        print("Invalid Choice! Please try again.")
