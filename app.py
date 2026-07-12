@@ -1,34 +1,13 @@
-import json
 import csv
 import os
+from storage import load_expenses, save_expenses
 
-DATA_DIR = "data"
 REPORTS_DIR = "reports"
-JSON_FILE = os.path.join(DATA_DIR, "expenses.json")
 CSV_FILE = os.path.join(REPORTS_DIR, "expenses.csv")
-
-os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
-
-def load_expenses():
-    try:
-        with open(JSON_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            if isinstance(data, list):
-                print("Expenses Loaded Successfully!")
-                return data
-            return []
-    except FileNotFoundError:
-        return []
-    except json.JSONDecodeError:
-        return []
-
-
-def save_expenses():
-    with open(JSON_FILE, "w", encoding="utf-8") as file:
-        json.dump(expenses, file, indent=4)
-    print("Expenses Saved Successfully!")
+expenses = load_expenses()
+budget_limit = 0.0
 
 
 def display_menu():
@@ -189,9 +168,6 @@ def sort_by_title():
     display_expenses(sorted_expenses)
 
 
-expenses = load_expenses()
-budget_limit = 0.0
-
 while True:
     display_menu()
     choice = input("Enter your choice: ").strip()
@@ -250,7 +226,8 @@ while True:
             print("Expense Not Found!")
 
     elif choice == "5":
-        save_expenses()
+        save_expenses(expenses)
+        print("Expenses Saved Successfully!")
 
     elif choice == "6":
         summary_report()
