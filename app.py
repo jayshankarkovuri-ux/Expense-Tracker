@@ -13,7 +13,7 @@ os.makedirs(REPORTS_DIR, exist_ok=True)
 
 def load_expenses():
     try:
-        with open(JSON_FILE, "r") as file:
+        with open(JSON_FILE, "r", encoding="utf-8") as file:
             data = json.load(file)
             if isinstance(data, list):
                 print("Expenses Loaded Successfully!")
@@ -26,7 +26,7 @@ def load_expenses():
 
 
 def save_expenses():
-    with open(JSON_FILE, "w") as file:
+    with open(JSON_FILE, "w", encoding="utf-8") as file:
         json.dump(expenses, file, indent=4)
     print("Expenses Saved Successfully!")
 
@@ -47,7 +47,9 @@ def display_menu():
     print("10. Sort Expenses by Title")
     print("11. Highest and Lowest Expense")
     print("12. Export Expenses to CSV")
-    print("13. Exit")
+    print("13. Set Budget")
+    print("14. Check Budget Status")
+    print("15. Exit")
     print("=" * 45)
 
 
@@ -130,7 +132,7 @@ def export_to_csv():
         print("No expenses to export.")
         return
 
-    with open(CSV_FILE, "w", newline="") as file:
+    with open(CSV_FILE, "w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=["title", "category", "amount"])
         writer.writeheader()
         writer.writerows(expenses)
@@ -138,7 +140,57 @@ def export_to_csv():
     print(f"Expenses exported successfully to {CSV_FILE}")
 
 
+def set_budget():
+    global budget_limit
+    try:
+        budget_limit = float(input("Enter Monthly Budget: ₹"))
+        if budget_limit < 0:
+            print("Budget cannot be negative.")
+            budget_limit = 0
+            return
+        print(f"Budget set successfully! Budget = ₹{budget_limit}")
+    except ValueError:
+        print("Invalid budget amount!")
+
+
+def check_budget():
+    if budget_limit <= 0:
+        print("Please set a budget first!")
+        return
+
+    total_expenses = sum(expense["amount"] for expense in expenses)
+
+    print("\nBUDGET STATUS")
+    print("-" * 45)
+    print(f"Budget Limit : ₹{budget_limit}")
+    print(f"Total Spent  : ₹{total_expenses}")
+
+    if total_expenses > budget_limit:
+        print("WARNING: Budget Exceeded!")
+        print(f"Exceeded By: ₹{total_expenses - budget_limit}")
+    else:
+        print("Budget is under control")
+        print(f"Remaining Budget: ₹{budget_limit - total_expenses}")
+
+
+def sort_by_amount(reverse=True):
+    if not expenses:
+        print("No expenses found.")
+        return
+    sorted_expenses = sorted(expenses, key=lambda x: x["amount"], reverse=reverse)
+    display_expenses(sorted_expenses)
+
+
+def sort_by_title():
+    if not expenses:
+        print("No expenses found.")
+        return
+    sorted_expenses = sorted(expenses, key=lambda x: x["title"].lower())
+    display_expenses(sorted_expenses)
+
+
 expenses = load_expenses()
+budget_limit = 0.0
 
 while True:
     display_menu()
@@ -207,25 +259,13 @@ while True:
         category_analysis()
 
     elif choice == "8":
-        if not expenses:
-            print("No expenses found.")
-        else:
-            sorted_expenses = sorted(expenses, key=lambda x: x["amount"], reverse=True)
-            display_expenses(sorted_expenses)
+        sort_by_amount(reverse=True)
 
     elif choice == "9":
-        if not expenses:
-            print("No expenses found.")
-        else:
-            sorted_expenses = sorted(expenses, key=lambda x: x["amount"])
-            display_expenses(sorted_expenses)
+        sort_by_amount(reverse=False)
 
     elif choice == "10":
-        if not expenses:
-            print("No expenses found.")
-        else:
-            sorted_expenses = sorted(expenses, key=lambda x: x["title"].lower())
-            display_expenses(sorted_expenses)
+        sort_by_title()
 
     elif choice == "11":
         highest_and_lowest_expense()
@@ -234,6 +274,12 @@ while True:
         export_to_csv()
 
     elif choice == "13":
+        set_budget()
+
+    elif choice == "14":
+        check_budget()
+
+    elif choice == "15":
         print("Exiting Program...")
         break
 
