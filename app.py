@@ -20,7 +20,8 @@ def display_menu():
     print("5. Save Expenses")
     print("6. Summary Report")
     print("7. Category Analysis")
-    print("8. Exit")
+    print("8. Monthly Report")
+    print("9. Exit")
     print("=" * 40)
 
 
@@ -68,6 +69,38 @@ def category_analysis():
         print(f"{category.title()}: ₹{total}")
 
 
+def monthly_report():
+
+    month = input("Enter Month (YYYY-MM): ")
+
+    total = 0
+
+    print("\nMONTHLY REPORT")
+    print("-" * 30)
+
+    found = False
+
+    for expense in expenses:
+
+        if expense.get("date", "").startswith(month):
+
+            print(
+                f"{expense['title']} | "
+                f"{expense['category']} | "
+                f"{expense['date']} | "
+                f"₹{expense['amount']}"
+            )
+
+            total += expense["amount"]
+            found = True
+
+    if found:
+        print("-" * 30)
+        print(f"Total Monthly Expense: ₹{total}")
+    else:
+        print("No expenses found for this month.")
+
+
 while True:
 
     display_menu()
@@ -79,6 +112,7 @@ while True:
 
         title = input("Enter Expense Title: ")
         category = input("Enter Category: ")
+        date = input("Enter Date (YYYY-MM-DD): ")
 
         try:
             amount = float(input("Enter Amount: "))
@@ -89,6 +123,7 @@ while True:
         expense = {
             "title": title,
             "category": category,
+            "date": date,
             "amount": amount
         }
 
@@ -110,6 +145,7 @@ while True:
 
                 print(f"Title    : {expense['title']}")
                 print(f"Category : {expense['category']}")
+                print(f"Date     : {expense.get('date', 'N/A')}")
                 print(f"Amount   : ₹{expense['amount']}")
                 print("-" * 40)
 
@@ -127,6 +163,7 @@ while True:
                 print("\nExpense Found!")
                 print(f"Title    : {expense['title']}")
                 print(f"Category : {expense['category']}")
+                print(f"Date     : {expense.get('date', 'N/A')}")
                 print(f"Amount   : ₹{expense['amount']}")
 
                 found = True
@@ -174,8 +211,13 @@ while True:
 
         category_analysis()
 
-    # Exit
+    # Monthly Report
     elif choice == "8":
+
+        monthly_report()
+
+    # Exit
+    elif choice == "9":
 
         print("Exiting Program...")
         break
