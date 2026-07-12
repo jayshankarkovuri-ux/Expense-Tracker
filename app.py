@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import csv
 import os
 from storage import load_expenses, save_expenses
@@ -28,8 +29,8 @@ def display_menu():
     print("12. Export Expenses to CSV")
     print("13. Set Budget")
     print("14. Check Budget Status")
-    print("15. Exit")
-    print("=" * 45)
+    print("15. Generate Expense Chart")
+    print("16. Exit")
 
 
 def display_expenses(expense_list):
@@ -167,7 +168,39 @@ def sort_by_title():
     sorted_expenses = sorted(expenses, key=lambda x: x["title"].lower())
     display_expenses(sorted_expenses)
 
+    
 
+def generate_expense_chart():
+    if not expenses:
+        print("No expenses found.")
+        return
+
+    category_totals = {}
+
+    for expense in expenses:
+        category = expense["category"].strip().title()
+        amount = expense["amount"]
+
+        category_totals[category] = category_totals.get(category, 0) + amount
+
+    categories = list(category_totals.keys())
+    amounts = list(category_totals.values())
+
+    os.makedirs("images", exist_ok=True)
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(categories, amounts)
+
+    plt.title("Expense Tracker - Category Wise Spending")
+    plt.xlabel("Category")
+    plt.ylabel("Amount (₹)")
+    plt.tight_layout()
+
+    plt.savefig("images/expense_chart.png")
+    plt.show()
+    plt.close()
+
+    print("Chart saved successfully in images/expense_chart.png")
 while True:
     display_menu()
     choice = input("Enter your choice: ").strip()
@@ -257,6 +290,9 @@ while True:
         check_budget()
 
     elif choice == "15":
+        generate_expense_chart()
+
+    elif choice == "16":
         print("Exiting Program...")
         break
 

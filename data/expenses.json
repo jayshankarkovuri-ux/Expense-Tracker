@@ -1,0 +1,12 @@
+[
+    {
+        "title": "laptop",
+        "category": "personal",
+        "amount": 500000.0
+    },
+    {
+        "title": "gym",
+        "category": "health",
+        "amount": 5000.0
+    }
+]
